@@ -1,12 +1,17 @@
 let tg = window.Telegram.WebApp;
 tg.expand();
 
+let user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
+let userName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : "Telegram Student";
+let userUsername = user && user.username ? `@${user.username}` : "No Username";
+
 const studyData = {
     9: [
         { name: "Mathematics / ሂሳብ", url: "#" },
         { name: "Physics / ፊዚክስ", url: "#" },
         { name: "Chemistry / ኬሚስትሪ", url: "#" },
         { name: "Biology / ባዮሎጂ", url: "#" },
+        { name: "Economics / ኢኮኖሚክስ", url: "#" },
         { name: "English / እንግሊዝኛ", url: "#" },
         { name: "Geography / ጂኦግራፊ", url: "#" },
         { name: "History / ታሪክ", url: "#" },
@@ -18,6 +23,7 @@ const studyData = {
         { name: "Physics / ፊዚክስ", url: "#" },
         { name: "Chemistry / ኬሚስትሪ", url: "#" },
         { name: "Biology / ባዮሎጂ", url: "#" },
+        { name: "Economics / ኢኮኖሚክስ", url: "#" },
         { name: "English / እንግሊዝኛ", url: "#" },
         { name: "Geography / ጂኦግራፊ", url: "#" },
         { name: "History / ታሪክ", url: "#" },
@@ -26,24 +32,24 @@ const studyData = {
     ],
     11: [
         { name: "General Mathematics / አጠቃላይ ሂሳብ", url: "#" },
-        { name: "Advanced Mathematics (Natural) / የቴርሞ ሂሳብ", url: "#" },
-        { name: "Physics / ፊዚክስ (Natural)", url: "#" },
-        { name: "Chemistry / ኬሚስትሪ (Natural)", url: "#" },
-        { name: "Biology / ባዮሎጂ (Natural)", url: "#" },
-        { name: "Economics / ኢኮኖሚክስ (Social)", url: "#" },
-        { name: "Geography / ጂኦግራፊ (Social)", url: "#" },
-        { name: "History / ታሪክ (Social)", url: "#" },
+        { name: "Advanced Mathematics / የቴርሞ ሂሳብ", url: "#" },
+        { name: "Physics / ፊዚክስ", url: "#" },
+        { name: "Chemistry / ኬሚስትሪ", url: "#" },
+        { name: "Biology / ባዮሎጂ", url: "#" },
+        { name: "Economics / ኢኮኖሚክስ", url: "#" },
+        { name: "Geography / ጂኦግራፊ", url: "#" },
+        { name: "History / ታሪክ", url: "#" },
         { name: "English / እንግሊዝኛ", url: "#" }
     ],
     12: [
         { name: "General Mathematics / አጠቃላይ ሂሳብ", url: "#" },
-        { name: "Advanced Mathematics (Natural) / የቴርሞ ሂሳብ", url: "#" },
-        { name: "Physics / ፊዚክስ (Natural)", url: "#" },
-        { name: "Chemistry / ኬሚስትሪ (Natural)", url: "#" },
-        { name: "Biology / ባዮሎጂ (Natural)", url: "#" },
-        { name: "Economics / ኢኮኖሚክስ (Social)", url: "#" },
-        { name: "Geography / ጂኦግራፊ (Social)", url: "#" },
-        { name: "History / ታሪክ (Social)", url: "#" },
+        { name: "Advanced Mathematics / የቴርሞ ሂሳብ", url: "#" },
+        { name: "Physics / ፊዚክስ", url: "#" },
+        { name: "Chemistry / ኬሚስትሪ", url: "#" },
+        { name: "Biology / ባዮሎጂ", url: "#" },
+        { name: "Economics / ኢኮኖሚክስ", url: "#" },
+        { name: "Geography / ጂኦግራፊ", url: "#" },
+        { name: "History / ታሪክ", url: "#" },
         { name: "English / እንግሊዝኛ", url: "#" },
         { name: "University Entrance Exam Review / የዩኒቨርሲቲ መግቢያ ፈተና ማጠቃለያ", url: "#" }
     ]
@@ -71,6 +77,11 @@ function loadGrade(gradeNum) {
         link.href = sub.url;
         link.target = '_blank';
         link.innerText = sub.name;
+
+        link.addEventListener('click', function(e) {
+            console.log(`Student ${userName} downloaded: ${sub.name}`);
+        });
+
         subjectListDiv.appendChild(link);
     });
 }
