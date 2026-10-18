@@ -1,40 +1,50 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Score600Academy</title>
+    <!-- Telegram WebApp Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="style.css">
-  <script src="https://unpkg.com/pdf-lib@1.4.0/dist/pdf-lib.min.js"></script>
+    <!-- PDF-Lib for Client-Side Watermarking -->
+    <script src="https://unpkg.com/pdf-lib@1.4.0/dist/pdf-lib.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f9; color: #333; margin: 0; padding: 15px; }
+        h1 { font-size: 20px; text-align: center; color: #2c3e50; }
+        .subtitle { text-align: center; font-size: 13px; color: #666; margin-bottom: 20px; }
+        .grade-section { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .grade-section h3 { margin-top: 0; color: #0088cc; font-size: 16px; border-bottom: 2px solid #0088cc; padding-bottom: 5px; }
+        .chapter-card { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+        .chapter-card:last-child { border-bottom: none; }
+        button { background: #0088cc; color: white; border: none; padding: 7px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        button:active { background: #006699; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🎯 Score600Academy</h1>
-            <p>Grades 9 - 12 Study Materials & PDFs</p>
-            <p class="amharic-sub">የ9ኛ - 12ኛ ክፍል ነፃ የማጥኛ ማስታወሻዎች</p>
-        </header>
+    <h1>Score600Academy 📚</h1>
+    <div class="subtitle">Secure Study Companion & Exam Prep</div>
 
-        <main>
-            <section class="grade-selector">
-                <h2>Select Your Grade / ክፍል ይምረጡ</h2>
-                <div class="grade-buttons">
-                    <button onclick="loadGrade(9)">Grade 9 / 9ኛ ክፍል</button>
-                    <button onclick="loadGrade(10)">Grade 10 / 10ኛ ክፍል</button>
-                    <button onclick="loadGrade(11)">Grade 11 / 11ኛ ክፍል</button>
-                    <button onclick="loadGrade(12)">Grade 12 / 12ኛ ክፍል</button>
-                </div>
-            </section>
-
-            <section id="content-area" class="hidden">
-                <button class="back-btn" onclick="goBack()">⬅ Back / ተመለስ</button>
-                <h3 id="selected-grade-title"></h3>
-                <div id="subject-list" class="subject-list"></div>
-            </section>
-        </main>
+    <div class="grade-section">
+        <h3>Grade 9 Mathematics / 9ኛ ክፍል ሂሳብ</h3>
+        <div class="chapter-card">
+            <span>Chapter 1: Rational Numbers</span>
+            <button onclick="downloadProtectedPdf('/materials/grade9_math_ch1.pdf', 'Grade9_Math_Ch1')">Download PDF</button>
+        </div>
+        <div class="chapter-card">
+            <span>Chapter 2: Linear Equations</span>
+            <button onclick="downloadProtectedPdf('/materials/grade9_math_ch2.pdf', 'Grade9_Math_Ch2')">Download PDF</button>
+        </div>
     </div>
 
+    <div class="grade-section">
+        <h3>Grade 12 Physics / 12ኛ ክፍል ፊዚክስ</h3>
+        <div class="chapter-card">
+            <span>Chapter 1: Electrostatics</span>
+            <button onclick="downloadProtectedPdf('/materials/grade12_physics_ch1.pdf', 'Grade12_Physics_Ch1')">Download PDF</button>
+        </div>
+    </div>
+
+    <!-- Links to your separate app.js logic -->
     <script src="app.js"></script>
 </body>
 </html>
