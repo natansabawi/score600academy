@@ -1,0 +1,87 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--tg-theme-bg-color, #f4f6f9);
+    color: var(--tg-theme-text-color, #222);
+    padding: 16px;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+header h1 {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: var(--tg-theme-button-color, #2481cc);
+}
+
+header p {
+    font-size: 14px;
+    color: #666;
+}
+
+.amharic-sub {
+    font-size: 13px;
+    color: #888;
+    margin-top: 2px;
+}
+
+h2 {
+    font-size: 18px;
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+.grade-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.grade-buttons button, .subject-item a {
+    background-color: var(--tg-theme-button-color, #2481cc);
+    color: var(--tg-theme-button-text-color, #fff);
+    border: none;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.grade-buttons button:hover, .subject-item a:hover {
+    opacity: 0.9;
+}
+
+.hidden {
+    display: none;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: var(--tg-theme-link-color, #2481cc);
+    font-size: 15px;
+    cursor: pointer;
+    margin-bottom: 16px;
+}
+
+.subject-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
