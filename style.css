@@ -1,3 +1,13 @@
+:root {
+    --primary-blue: #0b1f36;
+    --accent-gold: #d4af37;
+    --accent-gold-light: #f3e5ab;
+    --bg-gradient: linear-gradient(135deg, #0b1f36 0%, #16365c 100%);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --text-main: #1a1a1a;
+    --text-muted: #555;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,82 +16,181 @@
 }
 
 body {
-    background-color: var(--tg-theme-bg-color, #f4f6f9);
-    color: var(--tg-theme-text-color, #222);
-    padding: 16px;
+    background: var(--bg-gradient);
+    color: var(--text-main);
+    min-height: 100vh;
+    padding: 20px 16px;
 }
 
 .container {
-    max-width: 600px;
+    max-width: 500px;
     margin: 0 auto;
 }
 
 header {
     text-align: center;
+    background: var(--card-bg);
+    padding: 24px 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     margin-bottom: 24px;
+    border-bottom: 4px solid var(--accent-gold);
+}
+
+.logo-img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    border-radius: 50%;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(11, 31, 54, 0.2);
+    border: 2px solid var(--accent-gold);
 }
 
 header h1 {
-    font-size: 24px;
-    margin-bottom: 8px;
-    color: var(--tg-theme-button-color, #2481cc);
+    font-size: 26px;
+    color: var(--primary-blue);
+    font-weight: 800;
+    margin-bottom: 4px;
 }
 
 header p {
     font-size: 14px;
-    color: #666;
+    color: var(--text-muted);
+    font-weight: 600;
 }
 
 .amharic-sub {
     font-size: 13px;
-    color: #888;
-    margin-top: 2px;
+    color: #444;
+    margin-top: 4px;
+    font-weight: 500;
 }
 
 h2 {
     font-size: 18px;
-    margin-bottom: 14px;
+    color: #fff;
+    margin-bottom: 16px;
     text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .grade-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
 }
 
-.grade-buttons button, .subject-item a {
-    background-color: var(--tg-theme-button-color, #2481cc);
-    color: var(--tg-theme-button-text-color, #fff);
-    border: none;
-    padding: 14px;
+.grade-buttons button {
+    background: var(--card-bg);
+    color: var(--primary-blue);
+    border: 2px solid transparent;
+    padding: 18px 14px;
     font-size: 16px;
-    border-radius: 10px;
+    font-weight: 700;
+    border-radius: 14px;
     cursor: pointer;
     text-align: center;
-    text-decoration: none;
-    transition: opacity 0.2s;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.grade-buttons button:hover, .subject-item a:hover {
-    opacity: 0.9;
+.grade-buttons button:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-gold);
+    box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+    background: #ffffff;
+}
+
+.grade-buttons button span {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
 }
 
 .hidden {
     display: none;
 }
 
+#content-area {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 .back-btn {
     background: none;
     border: none;
-    color: var(--tg-theme-link-color, #2481cc);
+    color: var(--primary-blue);
     font-size: 15px;
+    font-weight: 700;
     cursor: pointer;
     margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+}
+
+.back-btn:hover {
+    color: var(--accent-gold);
+}
+
+#selected-grade-title {
+    font-size: 18px;
+    color: var(--primary-blue);
+    margin-bottom: 16px;
+    text-align: center;
+    font-weight: 800;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
 }
 
 .subject-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.subject-list a {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: var(--primary-blue);
+    border-left: 5px solid var(--accent-gold);
+    padding: 14px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.subject-list a::after {
+    content: "📥";
+    font-size: 14px;
+}
+
+.subject-list a:hover {
+    background: var(--primary-blue);
+    color: #fff;
+    border-left-color: #fff;
+    transform: translateX(4px);
 }
