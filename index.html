@@ -25,30 +25,77 @@
     <div class="subtitle">Secure Study Companion & Exam Prep</div>
 
     <div class="grade-section">
-        <h3>Grade 9 Study Materials / 9ኛ ክፍል የትምህርት 资料</h3>
-        
+        <h3>Grade 9 Study Materials</h3>
         <div class="chapter-card">
             <span>History Unit 1 (EUEE Complete)</span>
             <button onclick="downloadProtectedPdf('/materials/grade9_history_ch1.pdf', 'Grade9_History_Unit1')">Download PDF</button>
         </div>
-        
-        <div class="chapter-card">
-            <span>Chemistry Unit 1 Study Guide</span>
-            <button onclick="downloadProtectedPdf('/materials/grade9_chemistry_ch1.pdf', 'Grade9_Chemistry_Unit1')">Download PDF</button>
-        </div>
-
-        <div class="chapter-card">
-            <span>Chemistry Unit 2 Study Guide</span>
-            <button onclick="downloadProtectedPdf('/materials/grade9_chemistry_ch2.pdf', 'Grade9_Chemistry_Unit2')">Download PDF</button>
-        </div>
-
-        <div class="chapter-card">
-            <span>Economics Unit 1 (EUEE Complete)</span>
-            <button onclick="downloadProtectedPdf('/materials/grade9_economics_ch1.pdf', 'Grade9_Economics_Unit1')">Download PDF</button>
-        </div>
     </div>
 
-    <!-- Links to your separate app.js logic -->
-    <script src="app.js"></script>
+    <!-- Inline script to avoid caching issues -->
+    <script>
+        async function downloadProtectedPdf(pdfUrl, gradeTitle) {
+            try {
+                const tg = window.Telegram?.WebApp;
+                const user = tg?.initDataUnsafe?.user;
+                
+                const userName = user ? `${user.first_name} ${user.last_name || ''}`.trim() : "Guest Student";
+                const userId = user ? user.id : "NoID";
+                const timestamp = new Date().toISOString().split('T')[0];
+
+                alert("Downloading for: " + userName + " (ID: " + userId + ")");
+
+                const response = await fetch(pdfUrl);
+                if (!response.ok) throw new Error("HTTP error! status: " + response.status);
+                
+                const existingPdfBytes = await response.arrayBuffer();
+
+                const { PDFDocument, rgb, degrees, StandardFonts } = PDFLib;
+                const pdfDoc = await PDFDocument.load(existingPdfBytes);
+                
+                const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+                const pages = pdfDoc.getPages();
+                
+                const watermarkText = `LICENSED TO: ${userName} (ID: ${userId}) - ${timestamp}`;
+
+                for (const page of pages) {
+                    const { width, height } = page.getSize();
+                    
+                    // Bright red banner and text
+                    page.drawRectangle({
+                        x: width * 0.1,
+                        y: height * 0.5,
+                        width: width * 0.8,
+                        height: 30,
+                        color: rgb(1, 0, 0),
+                        opacity: 0.8,
+                    });
+
+                    page.drawText(watermarkText, {
+                        x: (width * 0.1) + 10,
+                        y: (height * 0.5) + 10,
+                        size: 11,
+                        font: font,
+                        color: rgb(1, 1, 1),
+                    });
+                }
+
+                const modifiedPdfBytes = await pdfDoc.save();
+                const blob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${gradeTitle}_Protected.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                alert("Success! Watermarked PDF downloaded.");
+
+            } catch (error) {
+                console.error("Critical error:", error);
+                alert("Error: " + error.message);
+            }
+        }
+    </script>
 </body>
 </html>
