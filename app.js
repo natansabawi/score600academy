@@ -1,92 +1,61 @@
-let tg = window.Telegram.WebApp;
-tg.expand();
+// Function to download and watermark PDFs with student Telegram details
+async function downloadProtectedPdf(pdfUrl, gradeTitle) {
+  // 1. Get Telegram User Data automatically from the Mini App session
+  const tg = window.Telegram?.WebApp;
+  const user = tg?.initDataUnsafe?.user;
+  
+  const userName = user ? `${user.first_name} ${user.last_name || ''}`.trim() : "Score600Academy Student";
+  const userId = user ? user.id : "Guest";
+  const timestamp = new Date().toISOString().split('T')[0];
 
-let user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
-let userName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : "Telegram Student";
-let userUsername = user && user.username ? `@${user.username}` : "No Username";
+  // Watermark text containing their unique details to prevent sharing
+  const watermarkText = `Licensed to: ${userName} (ID: ${userId}) - ${timestamp}`;
 
-const studyData = {
-    9: [
-        { name: "Mathematics / ሂሳብ", url: "#" },
-        { name: "Physics / ፊዚክስ", url: "#" },
-        { name: "Chemistry / ኬሚስትሪ", url: "#" },
-        { name: "Biology / ባዮሎጂ", url: "#" },
-        { name: "Economics / ኢኮኖሚክስ", url: "#" },
-        { name: "English / እንግሊዝኛ", url: "#" },
-        { name: "Geography / ጂኦግራፊ", url: "#" },
-        { name: "History / ታሪክ", url: "#" },
-        { name: "Civics / ሲቪክስ", url: "#" },
-        { name: "Information Technology (IT) / ព័ቴክ", url: "#" }
-    ],
-    10: [
-        { name: "Mathematics / ሂሳብ", url: "#" },
-        { name: "Physics / ፊዚክስ", url: "#" },
-        { name: "Chemistry / ኬሚስትሪ", url: "#" },
-        { name: "Biology / ባዮሎጂ", url: "#" },
-        { name: "Economics / ኢኮኖሚክስ", url: "#" },
-        { name: "English / እንግሊዝኛ", url: "#" },
-        { name: "Geography / ጂኦግራፊ", url: "#" },
-        { name: "History / ታሪክ", url: "#" },
-        { name: "Civics / ሲቪክስ", url: "#" },
-        { name: "Information Technology (IT) / ព័ቴክ", url: "#" }
-    ],
-    11: [
-        { name: "General Mathematics / አጠቃላይ ሂሳብ", url: "#" },
-        { name: "Advanced Mathematics / የቴርሞ ሂሳብ", url: "#" },
-        { name: "Physics / ፊዚክስ", url: "#" },
-        { name: "Chemistry / ኬሚስትሪ", url: "#" },
-        { name: "Biology / ባዮሎጂ", url: "#" },
-        { name: "Economics / ኢኮኖሚክስ", url: "#" },
-        { name: "Geography / ጂኦግራፊ", url: "#" },
-        { name: "History / ታሪክ", url: "#" },
-        { name: "English / እንግሊዝኛ", url: "#" }
-    ],
-    12: [
-        { name: "General Mathematics / አጠቃላይ ሂሳብ", url: "#" },
-        { name: "Advanced Mathematics / የቴርሞ ሂሳብ", url: "#" },
-        { name: "Physics / ፊዚክስ", url: "#" },
-        { name: "Chemistry / ኬሚስትሪ", url: "#" },
-        { name: "Biology / ባዮሎጂ", url: "#" },
-        { name: "Economics / ኢኮኖሚክስ", url: "#" },
-        { name: "Geography / ጂኦግራፊ", url: "#" },
-        { name: "History / ታሪክ", url: "#" },
-        { name: "English / እንግሊዝኛ", url: "#" },
-        { name: "University Entrance Exam Review / የዩኒቨርሲቲ መግቢያ ፈተና ማጠቃለያ", url: "#" }
-    ]
-};
+  try {
+    // 2. Fetch the original PDF from your storage/server/Vercel public folder
+    const existingPdfBytes = await fetch(pdfUrl).then(res => {
+      if (!res.ok) throw new Error("Failed to fetch PDF");
+      return res.arrayBuffer();
+    });
 
-function loadGrade(gradeNum) {
-    document.querySelector('.grade-selector').classList.add('hidden');
-    const contentArea = document.getElementById('content-area');
-    contentArea.classList.remove('hidden');
+    // 3. Load the PDF using pdf-lib
+    const { PDFDocument, rgb, degrees } = PDFLib;
+    const pdfDoc = await PDFDocument.load(existingPdfBytes);
+    const pages = pdfDoc.getPages();
 
-    document.getElementById('selected-grade-title').innerText = `Grade ${gradeNum} Materials / የ${gradeNum}ኛ ክፍል ማስታወሻዎች`;
+    // 4. Loop through every page and embed the diagonal security watermark & footer
+    for (const page of pages) {
+      const { width, height } = page.getSize();
+      
+      // Diagonal semi-transparent watermark across the center
+      page.drawText(watermarkText, {
+        x: width / 4,
+        y: height / 2,
+        size: 16,
+        color: rgb(0.5, 0.5, 0.5), // Subtle gray
+        opacity: 0.35,
+        angle: degrees(35), // Angled to cover content safely
+      });
 
-    const subjectListDiv = document.getElementById('subject-list');
-    subjectListDiv.innerHTML = '';
-
-    const subjects = studyData[gradeNum] || [];
-
-    if(subjects.length === 0) {
-        subjectListDiv.innerHTML = '<p style="text-align:center; color:#777;">Coming Soon! / በቅርብ ቀን ይጠብቁ!</p>';
-        return;
+      // Bottom footer disclaimer
+      page.drawText(`Score600Academy - Exclusive Copy for ${userName} (Telegram ID: ${userId})`, {
+        x: 40,
+        y: 20,
+        size: 8,
+        color: rgb(0.4, 0.4, 0.4),
+      });
     }
 
-    subjects.forEach(sub => {
-        let link = document.createElement('a');
-        link.href = sub.url;
-        link.target = '_blank';
-        link.innerText = sub.name;
+    // 5. Save the modified PDF and trigger an automatic download in the browser
+    const modifiedPdfBytes = await pdfDoc.save();
+    const blob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${gradeTitle}_Score600Academy.pdf`;
+    link.click();
 
-        link.addEventListener('click', function(e) {
-            console.log(`Student ${userName} downloaded: ${sub.name}`);
-        });
-
-        subjectListDiv.appendChild(link);
-    });
-}
-
-function goBack() {
-    document.getElementById('content-area').classList.add('hidden');
-    document.querySelector('.grade-selector').classList.remove('hidden');
+  } catch (error) {
+    console.error("Error generating protected PDF:", error);
+    alert("Could not download the PDF. Please ensure you are connected to the internet.");
+  }
 }
