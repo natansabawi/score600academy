@@ -19,21 +19,26 @@
     
     const watermarkText = `LICENSED TO: ${userName} (ID: ${userId}) - ${timestamp}`;
 
-    // Loop through every page and draw watermarks at multiple positions
     for (const page of pages) {
       const { width, height } = page.getSize();
       
-      // Draw at 3 different vertical heights to guarantee visibility
-      [height * 0.25, height * 0.5, height * 0.75].forEach(yPos => {
-        page.drawText(watermarkText, {
-          x: width * 0.1,
-          y: yPos,
-          size: 16,
-          font: font,
-          color: rgb(0.9, 0.1, 0.1), // Bright Red
-          opacity: 0.6,
-          angle: degrees(30),
-        });
+      // 1. Draw a solid red background box near the top center so it's guaranteed to be seen
+      page.drawRectangle({
+        x: width * 0.1,
+        y: height * 0.8,
+        width: width * 0.8,
+        height: 40,
+        color: rgb(1, 0, 0), // Solid red
+        opacity: 0.7,
+      });
+
+      // 2. Draw text inside/over the red box
+      page.drawText(watermarkText, {
+        x: (width * 0.1) + 10,
+        y: (height * 0.8) + 15,
+        size: 12,
+        font: font,
+        color: rgb(1, 1, 1), // White text on red background
       });
     }
 
