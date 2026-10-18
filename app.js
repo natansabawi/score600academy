@@ -1,68 +1,57 @@
-﻿// Function to download and watermark PDFs with student Telegram details
-async function downloadProtectedPdf(pdfUrl, gradeTitle) {
-  // 1. Get Telegram User Data automatically from the Mini App session
-  const tg = window.Telegram?.WebApp;
-  const user = tg?.initDataUnsafe?.user;
-  
-  const userName = user ? `${user.first_name} ${user.last_name || ''}`.trim() : "Score600Academy Student";
-  const userId = user ? user.id : "Guest";
-  const timestamp = new Date().toISOString().split('T')[0];
-
-  // Watermark text containing their unique details
-  const watermarkText = `Licensed to: ${userName} (ID: ${userId}) - ${timestamp}`;
-
+﻿async function downloadProtectedPdf(pdfUrl, gradeTitle) {
   try {
-    console.log("Fetching PDF from:", pdfUrl);
-    // 2. Fetch the original PDF
-    const existingPdfBytes = await fetch(pdfUrl).then(res => {
-      if (!res.ok) throw new Error(`Failed to fetch PDF: ${res.statusText}`);
-      return res.arrayBuffer();
-    });
+    // 1. Get Telegram User Data
+    const tg = window.Telegram?.WebApp;
+    const user = tg?.initDataUnsafe?.user;
+    
+    const userName = user ? `${user.first_name} ${user.last_name || ''}`.trim() : "Guest Student";
+    const userId = user ? user.id : "NoID";
+    const timestamp = new Date().toISOString().split('T')[0];
 
-    // 3. Load the PDF using pdf-lib
+    alert("Starting download for: " + userName + " (ID: " + userId + ")");
+
+    // 2. Fetch the PDF
+    const response = await fetch(pdfUrl);
+    if (!response.ok) throw new Error("HTTP error! status: " + response.status);
+    const existingPdfBytes = await response.arrayBuffer();
+
+    // 3. Load PDF Document using pdf-lib
     const { PDFDocument, rgb, degrees, StandardFonts } = PDFLib;
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     
-    // Embed a standard font so text is guaranteed to render
     const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     const pages = pdfDoc.getPages();
+    
+    const watermarkText = `Licensed to: ${userName} (ID: ${userId}) - ${timestamp}`;
 
-    // 4. Loop through every page and embed the diagonal security watermark & footer
+    // 4. Draw Watermark on each page
     for (const page of pages) {
       const { width, height } = page.getSize();
       
-      // Diagonal semi-transparent watermark across the center
+      // Center diagonal watermark
       page.drawText(watermarkText, {
         x: width / 6,
         y: height / 2,
         size: 14,
         font: font,
-        color: rgb(0.4, 0.4, 0.4), // Darker gray for better visibility
-        opacity: 0.4,
+        color: rgb(0.8, 0, 0), // Bright Red temporarily so it's impossible to miss!
+        opacity: 0.5,
         angle: degrees(35),
-      });
-
-      // Bottom footer disclaimer
-      page.drawText(`Score600Academy - Exclusive Copy for ${userName} (Telegram ID: ${userId})`, {
-        x: 40,
-        y: 20,
-        size: 8,
-        font: font,
-        color: rgb(0.3, 0.3, 0.3),
       });
     }
 
-    // 5. Save the modified PDF and trigger browser download
+    // 5. Save and Download
     const modifiedPdfBytes = await pdfDoc.save();
     const blob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `${gradeTitle}_Score600Academy.pdf`;
+    link.download = `${gradeTitle}_Protected.pdf`;
     link.click();
-    console.log("PDF successfully watermarked and downloaded!");
+    
+    alert("Watermark applied successfully!");
 
   } catch (error) {
-    console.error("Error generating protected PDF:", error);
-    alert("Could not watermark PDF. Error: " + error.message);
+    console.error("Watermark error:", error);
+    alert("Error caught: " + error.message);
   }
 }
