@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Score600Academy Reader</title>
+    <title>Score600Academy Reader v2</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { 
@@ -12,15 +12,14 @@
             color: #333; 
             margin: 0; 
             padding: 10px; 
-            /* Disable text highlighting/selection across the app */
             -webkit-user-select: none; 
             user-select: none; 
         }
         h1 { font-size: 18px; text-align: center; color: #2c3e50; margin: 5px 0; }
         .subtitle { text-align: center; font-size: 12px; color: #666; margin-bottom: 10px; }
         
-        .menu-container { background: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .menu-container h3 { margin: 0 0 8px 0; color: #0088cc; font-size: 14px; }
+        .menu-container { background: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .menu-container h3 { margin: 0 0 10px 0; color: #0088cc; font-size: 14px; border-bottom: 2px solid #0088cc; padding-bottom: 5px; }
         
         .chapter-btn { 
             display: block; 
@@ -28,20 +27,20 @@
             background: #f8f9fa; 
             color: #333; 
             border: 1px solid #ddd; 
-            padding: 8px 10px; 
-            margin-bottom: 5px; 
+            padding: 10px; 
+            margin-bottom: 8px; 
             border-radius: 5px; 
             cursor: pointer; 
             font-size: 13px; 
+            font-weight: bold;
             text-align: left;
         }
         .chapter-btn:hover { background: #e2e6ea; }
         
-        /* Reader View Area */
         #reader-container { 
             display: none; 
             background: white; 
-            padding: 5px; 
+            padding: 8px; 
             border-radius: 8px; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
         }
@@ -54,16 +53,17 @@
             cursor: pointer; 
             font-size: 12px; 
             margin-bottom: 8px; 
+            font-weight: bold;
         }
         iframe { 
             width: 100%; 
-            height: 70vh; 
+            height: 72vh; 
             border: none; 
             border-radius: 5px; 
         }
     </style>
 </head>
-<body oncontextmenu="return false;"> <!-- Disable right-click globally -->
+<body oncontextmenu="return false;">
 
     <h1>Score600Academy 📚</h1>
     <div class="subtitle">Secure In-App Study Reader</div>
@@ -74,14 +74,12 @@
         <button class="chapter-btn" onclick="openReader('materials/grade9_history_ch1.pdf', 'History Unit 1')">
             📖 History Unit 1 (EUEE Complete)
         </button>
-        <!-- Add more chapters here easily -->
     </div>
 
-    <!-- Embedded PDF Reader (Hidden until a chapter is clicked) -->
+    <!-- Embedded PDF Reader -->
     <div id="reader-container">
         <button class="back-btn" onclick="closeReader()">⬅ Back to Chapters</button>
         <h3 id="reader-title" style="margin: 5px 0; font-size: 14px; color: #333;"></h3>
-        <!-- #toolbar=0 hides the browser's download/print PDF toolbar -->
         <iframe id="pdf-frame" src=""></iframe>
     </div>
 
