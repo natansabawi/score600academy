@@ -5,7 +5,7 @@
  */
 
 const BOT_TOKEN = process.env.BOT_TOKEN || "YOUR_BOT_TOKEN_HERE";
-const WEBAPP_URL = process.env.WEBAPP_URL || "https://your-edugram-app.vercel.app";
+const WEBAPP_URL = process.env.WEBAPP_URL || "https://score600academy-naticeos-projects.vercel.app";
 
 const API_BASE = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
