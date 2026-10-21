@@ -1,0 +1,14 @@
+{
+  "name": "telegram-study-companion",
+  "version": "1.0.0",
+  "description": "Secure Educational Study Companion & Exam Prep Telegram Mini App",
+  "private": true,
+  "scripts": {
+    "dev": "serve . -p 3000",
+    "start": "serve . -p 3000",
+    "bot": "node bot.js"
+  },
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
+}

@@ -1,64 +1,328 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Score600Academy Secure Reader</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f9; color: #333; margin: 0; padding: 10px; -webkit-user-select: none; user-select: none; }
-        h1 { font-size: 18px; text-align: center; color: #2c3e50; margin: 5px 0; }
-        .subtitle { text-align: center; font-size: 12px; color: #666; margin-bottom: 10px; }
-        .menu-container { background: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .menu-container h3 { margin: 0 0 10px 0; color: #0088cc; font-size: 14px; border-bottom: 2px solid #0088cc; padding-bottom: 5px; }
-        .chapter-btn { display: block; width: 100%; background: #f8f9fa; color: #333; border: 1px solid #ddd; padding: 10px; margin-bottom: 8px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; text-align: left; }
-        .chapter-btn:hover { background: #e2e6ea; }
-        #reader-container { display: none; background: white; padding: 8px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .controls-bar { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .action-btn { background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
-        .max-btn { background: #27ae60; }
-        iframe { width: 100%; height: 72vh; border: none; border-radius: 5px; }
-        #reader-container.fullscreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; padding: 10px; box-sizing: border-box; background: #fff; }
-        #reader-container.fullscreen iframe { height: calc(100vh - 50px); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Score600Academy - Telegram Mini App & Secure Study Companion</title>
+  
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Anti-Cache Headers for Telegram WebViews -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
+  <!-- Modern Typography (Inter & Outfit) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- PDF.js Engine (Dual-mode fallback & High-Fidelity Rendering) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  
+  <!-- App Stylesheet with Cache-Busting Version Query -->
+  <link rel="stylesheet" href="style.css?v=2.1.0">
 </head>
-<body oncontextmenu="return false;">
-    <h1>Score600Academy 📚</h1>
-    <div class="subtitle">Secure In-App Study Reader</div>
-
-    <div id="menu" class="menu-container">
-        <h3>Grade 9 Study Materials</h3>
-        <button class="chapter-btn" onclick="openReader('materials/grade9_history_ch1.pdf', 'History Unit 1')">
-            📖 History Unit 1 (EUEE Complete)
-        </button>
+<body class="theme-adaptive">
+  <!-- Obfuscation Shield for Screenshot / Screen-Record Protection -->
+  <div id="security-blur-shield" class="security-blur-shield hidden" aria-hidden="true">
+    <div class="shield-message">
+      <div class="shield-icon">🛡️</div>
+      <h3>Score600Academy Protected</h3>
+      <p>Screen recording, local saving, and printing are disabled to safeguard confidential exam prep materials.</p>
     </div>
+  </div>
 
-    <div id="reader-container">
-        <div class="controls-bar">
-            <button class="action-btn" onclick="closeReader()">⬅ Back</button>
-            <button class="action-btn max-btn" onclick="toggleMaximize()">⛶ Maximize / Fullscreen</button>
+  <!-- Security Alert Toast -->
+  <div id="security-toast" class="security-toast hidden" role="alert">
+    <div class="toast-icon">🔒</div>
+    <div class="toast-content">
+      <div class="toast-title">Protected Material</div>
+      <div class="toast-desc">Direct downloads, right-click saving, and copying are disabled.</div>
+    </div>
+  </div>
+
+  <!-- Ingest Custom Google Drive Link Modal -->
+  <div id="ingest-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">☁️</span>
+          <h3>Ingest Google Drive Material</h3>
         </div>
-        <h3 id="reader-title" style="margin: 5px 0; font-size: 14px; color: #333;"></h3>
-        <iframe id="pdf-frame" src=""></iframe>
+        <button id="close-ingest-modal-btn" class="icon-btn">&times;</button>
+      </div>
+      <p class="modal-desc">
+        Paste any shared Google Drive file link, preview URL, or File ID. Ensure the file permission is set to <em>"Anyone with the link can view"</em>.
+      </p>
+      <div class="input-group">
+        <label for="drive-input-url">Google Drive Link / File ID</label>
+        <input
+          type="text"
+          id="drive-input-url"
+          placeholder="e.g. https://drive.google.com/file/d/1BxiMVs.../view?usp=sharing"
+          autocomplete="off"
+        >
+      </div>
+      <div class="input-group">
+        <label for="drive-input-title">Document Title (Optional)</label>
+        <input type="text" id="drive-input-title" placeholder="e.g. Grade 12 National Mock Paper 2026">
+      </div>
+      <div class="modal-actions">
+        <button id="cancel-ingest-btn" class="btn-secondary">Cancel</button>
+        <button id="submit-ingest-btn" class="btn-primary">
+          <span>Launch Secure Viewer</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Application Wrapper -->
+  <div id="app-container" class="app-container">
+    
+    <!-- Header Section -->
+    <header class="app-header">
+      <div class="header-top">
+        <div class="brand">
+          <div class="brand-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5"></path>
+              <path d="M2 12l10 5 10-5"></path>
+            </svg>
+          </div>
+          <div class="brand-info">
+            <span class="brand-name">Score600Academy</span>
+            <span class="brand-badge">ELITE EXAM PREP</span>
+          </div>
+        </div>
+
+        <!-- Student Profile & Action Tools -->
+        <div class="header-right-tools">
+          <button id="open-ingest-btn" class="tool-btn" title="Ingest Custom Google Drive PDF">
+            <span>☁️ Ingest Drive Link</span>
+          </button>
+          <div class="user-pill" id="user-profile-pill">
+            <div class="user-avatar" id="user-avatar">S</div>
+            <div class="user-meta">
+              <span class="user-greeting" id="user-name">Student</span>
+              <span class="user-status" id="user-status">Verified Student</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Banner / Grade Selector Banner -->
+      <div class="hero-banner">
+        <div class="banner-content">
+          <div class="banner-tag">🎯 Score600 Digital Library &bull; Public Drive Sync</div>
+          <h1 class="banner-title" id="hero-banner-title">Grades 9 to 12 Study Materials</h1>
+          <p class="banner-subtitle">Official curriculum notes, formula sheets, and past board papers delivered through secure in-app preview.</p>
+          
+          <!-- Prominent Grade Selector Tabs -->
+          <div class="grade-selector-wrap" aria-label="Select Grade">
+            <span class="grade-label">Select Grade:</span>
+            <div class="grade-pills">
+              <button class="grade-pill" data-grade="all">All Grades</button>
+              <button class="grade-pill active" data-grade="9">Grade 9</button>
+              <button class="grade-pill" data-grade="10">Grade 10</button>
+              <button class="grade-pill" data-grade="11">Grade 11</button>
+              <button class="grade-pill" data-grade="12">Grade 12</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation & Search Bar -->
+    <section class="controls-section">
+      <div class="search-bar-wrap">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="search-input" class="search-input" placeholder="Search by topic, Google Drive ID, formula, or exam paper..." autocomplete="off">
+        <button id="clear-search-btn" class="clear-search-btn hidden" aria-label="Clear Search">&times;</button>
+      </div>
+
+      <!-- Subject Categories Navigation Pills -->
+      <nav class="category-tabs" aria-label="Subject Categories">
+        <button class="cat-pill active" data-category="all">
+          <span class="cat-icon">📑</span> All Subjects
+        </button>
+        <button class="cat-pill" data-category="chemistry">
+          <span class="cat-icon">🧪</span> Chemistry
+        </button>
+        <button class="cat-pill" data-category="economics">
+          <span class="cat-icon">📊</span> Economics
+        </button>
+        <button class="cat-pill" data-category="geography">
+          <span class="cat-icon">🌍</span> Geography
+        </button>
+        <button class="cat-pill" data-category="history">
+          <span class="cat-icon">🏛️</span> History
+        </button>
+        <button class="cat-pill" data-category="physics">
+          <span class="cat-icon">⚡</span> Physics
+        </button>
+        <button class="cat-pill" data-category="math">
+          <span class="cat-icon">📐</span> Mathematics
+        </button>
+        <button class="cat-pill" data-category="exams">
+          <span class="cat-icon">📝</span> National Mock Exams
+        </button>
+        <button class="cat-pill" data-category="formulas">
+          <span class="cat-icon">⭐</span> Formula Sheets
+        </button>
+        <button class="cat-pill" data-category="bookmarked">
+          <span class="cat-icon">🔖</span> Saved (<span id="bookmark-count">0</span>)
+        </button>
+      </nav>
+    </section>
+
+    <!-- Materials Catalogue Grid -->
+    <main class="catalogue-section">
+      <div class="section-header">
+        <h2 class="section-title" id="catalogue-heading">Grade 9 Study Materials</h2>
+        <span class="material-count" id="materials-count-badge">Loading materials...</span>
+      </div>
+
+      <!-- Dynamic Cards Grid Container -->
+      <div id="materials-grid" class="materials-grid">
+        <!-- Injected via app.js with Read Securely buttons -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state hidden">
+        <div class="empty-icon">🔍</div>
+        <h3>No materials match your filter</h3>
+        <p>Try switching grades, searching for a different subject, or ingest a custom Google Drive link.</p>
+        <button id="reset-filter-btn" class="btn-secondary">Reset Filters</button>
+      </div>
+    </main>
+
+    <!-- App Footer -->
+    <footer class="app-footer">
+      <div class="security-badge-footer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span>Score600Academy Secure Viewer &bull; Anti-Download DRM Container</span>
+      </div>
+      <p class="copyright">&copy; 2026 Score600Academy. Verified Telegram Mini App on Vercel.</p>
+    </footer>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SECURE IN-APP GOOGLE DRIVE / PDF VIEWER MODAL                              -->
+  <!-- ========================================================================= -->
+  <div id="secure-reader-modal" class="secure-reader-modal hidden" role="dialog" aria-modal="true" aria-labelledby="reader-doc-title">
+    
+    <!-- Reader Top Bar -->
+    <div class="reader-top-bar">
+      <div class="reader-left-actions">
+        <button id="reader-close-btn" class="reader-btn icon-btn" title="Close Reader (or use Telegram Back Button)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+        <div class="reader-doc-meta">
+          <div class="reader-title-row">
+            <h3 id="reader-doc-title" class="reader-title">Document Title</h3>
+            <span id="reader-grade-badge" class="mini-grade-badge">Grade 9</span>
+          </div>
+          <span class="reader-security-pill">
+            <span class="pulse-dot"></span> In-App Secure Viewer &bull; Download &amp; Copy Restricted
+          </span>
+        </div>
+      </div>
+
+      <!-- Reader Controls & Mode Toggles -->
+      <div class="reader-tools">
+        <button id="reader-theme-toggle" class="reader-btn" title="Toggle Reading Comfort Mode">
+          <span id="theme-mode-icon">🌙</span>
+        </button>
+        <button id="reader-view-mode-toggle" class="reader-btn" title="Toggle Google Drive Iframe vs Canvas DRM">
+          <span id="reader-mode-label">🖼️ Canvas DRM</span>
+        </button>
+        <button id="reader-bookmark-btn" class="reader-btn" title="Bookmark Document">
+          <svg class="bookmark-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </button>
+      </div>
     </div>
 
-    <script>
-        function openReader(pdfPath, title) {
-            const absoluteUrl = `${window.location.origin}/${pdfPath}#toolbar=0&navpanes=0&scrollbar=0`;
-            document.getElementById('pdf-frame').src = absoluteUrl;
-            document.getElementById('reader-title').innerText = title;
-            document.getElementById('menu').style.display = 'none';
-            document.getElementById('reader-container').style.display = 'block';
-        }
-        function closeReader() {
-            document.getElementById('reader-container').classList.remove('fullscreen');
-            document.getElementById('pdf-frame').src = '';
-            document.getElementById('reader-container').style.display = 'none';
-            document.getElementById('menu').style.display = 'block';
-        }
-        function toggleMaximize() {
-            document.getElementById('reader-container').classList.toggle('fullscreen');
-        }
-    </script>
+    <!-- Viewer Stage -->
+    <div id="reader-stage" class="reader-stage">
+      
+      <!-- Loading Spinner -->
+      <div id="reader-loader" class="reader-loader">
+        <div class="spinner"></div>
+        <p id="reader-loader-text">Loading Secure Document...</p>
+      </div>
+
+      <!-- VIEW 1: GOOGLE DRIVE SECURE IFRAME CONTAINER -->
+      <div id="drive-viewer-container" class="drive-viewer-container">
+        <!-- Secure Iframe Sandbox (Omitting allow-popups prevents Google Drive pop-out escape!) -->
+        <iframe
+          id="drive-preview-iframe"
+          class="drive-iframe"
+          src=""
+          allow="autoplay"
+          sandbox="allow-scripts allow-same-origin allow-forms"
+          title="Score600Academy Secure Google Drive Preview"
+        ></iframe>
+
+        <!-- Anti-Popout Shield: Visually and physically covers Google Drive's top-right "Pop-out" button -->
+        <div class="drive-popout-shield" title="Protected by Score600Academy DRM">
+          <span class="shield-badge">🔒 Read-Only</span>
+        </div>
+
+        <!-- Dynamic Diagonal Watermark Grid across the Iframe -->
+        <div id="drive-watermark-overlay" class="drive-watermark-overlay"></div>
+      </div>
+
+      <!-- VIEW 2: HIGH-FIDELITY CANVAS DRM ENGINE (FALLBACK / OFFLINE VIEW) -->
+      <div id="canvas-wrapper" class="canvas-wrapper hidden">
+        <canvas id="pdf-render-canvas" class="pdf-canvas"></canvas>
+        <div id="canvas-watermark" class="canvas-watermark"></div>
+        <div id="canvas-shield" class="canvas-shield" title="Content Protected"></div>
+      </div>
+
+    </div>
+
+    <!-- Reader Bottom Bar (Active for Canvas View) -->
+    <div id="reader-bottom-bar" class="reader-bottom-bar hidden">
+      <div class="pagination-controls">
+        <button id="prev-page-btn" class="page-nav-btn" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <span>Prev</span>
+        </button>
+
+        <div class="page-indicator">
+          <span>Page</span>
+          <input type="number" id="current-page-input" min="1" max="1" value="1">
+          <span>of <strong id="total-pages-span">1</strong></span>
+        </div>
+
+        <button id="next-page-btn" class="page-nav-btn">
+          <span>Next</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Core Scripts with Cache-Busting Version Strings -->
+  <script src="pdf-generator.js?v=2.1.0"></script>
+  <script src="materials-data.js?v=2.1.0"></script>
+  <script src="app.js?v=2.1.0"></script>
 </body>
 </html>
