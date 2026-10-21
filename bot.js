@@ -4,7 +4,7 @@
  * Handles /start, /study, welcome cards, and configures the native WebApp Menu Button.
  */
 
-const BOT_TOKEN = process.env.BOT_TOKEN || "YOUR_BOT_TOKEN_HERE";
+const BOT_TOKEN = process.env.BOT_TOKEN || "8700664979:AAEZuO3XNUDrFiNcg98NCA48xg10Pk4LjGo";
 const WEBAPP_URL = process.env.WEBAPP_URL || "https://score600academy-naticeos-projects.vercel.app";
 
 const API_BASE = `https://api.telegram.org/bot${BOT_TOKEN}`;
